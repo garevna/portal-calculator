@@ -1,9 +1,9 @@
 <template>
-  <v-row justify="center">
-    <v-toolbar class="transparent" style="box-shadow: none">
-      <v-toolbar-title>
-        <h6>Search address</h6>
-      </v-toolbar-title>
+  <v-container>
+    <v-row justify="center">
+      <h6>Search address</h6>
+    </v-row>
+    <v-row justify="center">
       <v-autocomplete
         v-model="address"
         :loading="loading"
@@ -16,21 +16,30 @@
         hide-details
         placeholder="Enter the address"
         outlined
+        clearable
+        :menu-props="{ bottom: true, offsetY: true }"
       />
-
-      <v-btn text @click="$emit('update:value', address)" color="primary">SUBMIT</v-btn>
-    </v-toolbar>
-  </v-row>
+    </v-row>
+    <v-row justify="center">
+      <v-btn text @click="getSelected" color="primary">
+        SUBMIT
+      </v-btn>
+    </v-row>
+  </v-container>
 </template>
 
 <script>
+
+import { getDistance, getVariants, getAddressDetails, transformAddress } from '@/helpers'
+
 export default {
   name: 'GeoscapeAutocomplete',
 
-  props: ['value'],
+  props: ['value', 'buildingAddress'],
 
   data: () => ({
     address: '',
+    addressDetails: null,
     variants: [],
     loading: false,
     search: null,
@@ -48,17 +57,35 @@ export default {
     }
   },
   methods: {
+    receiveVariants: getVariants,
     async getVariants (val) {
       if (val.length < 4) return
       this.loading = true
-      this.variants = (await (await fetch(`https://api.psma.com.au/v1/predictive/address?maxNumberOfResults=20&query=${encodeURIComponent(val)}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: process.env.VUE_APP_GEOSCAPE_KEY
-        }
-      })).json()).suggest
+      this.variants = await this.receiveVariants(val)
       this.loading = false
+    },
+    async getSelected () {
+      this.$root.$emit('progress', true)
+      // console.log('VARIANTS:\n', this.variants)
+      // console.log('SELECTED:\n', this.variants[0])
+      this.$emit('update:buildingAddress', this.address)
+      this.addressDetails = await getAddressDetails(this.variants[0].id)
+      // console.log('ADDRESS DETAILS:\n', this.addressDetails)
+      const coordinates = this.addressDetails.coordinates
+      const response = await getDistance(coordinates[1], coordinates[0])
+
+      // console.log('DISTANCES:\n', response.data.matrix)
+
+      const distances = response.data.matrix.rows[0].elements.map(item => item.distance.value)
+
+      this.$root.$emit('distances-ready', response.data.matrix.destination_addresses.map((address, index) => ({
+        address: transformAddress(address),
+        pit: response.data.pits[index]._id,
+        coordinates: response.data.pits[index].coordinates,
+        distance: distances[index]
+      })))
+
+      this.$root.$emit('progress', false)
     }
   }
 }

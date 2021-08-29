@@ -30,6 +30,8 @@
 
 <script>
 
+import { getAddressDetails, getBuildings } from '@/helpers'
+
 export default {
   name: '',
   props: ['addressId', 'geolocation', 'relatedBuildingIds'],
@@ -58,39 +60,54 @@ export default {
     }
   },
   methods: {
-    async getAddressDetails () {
-      const response = await (await fetch(`https://api.psma.com.au/v1/addresses/${this.addressId}?include=geo,addressDetails`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: process.env.VUE_APP_GEOSCAPE_KEY
-        }
-      })).json()
+    receiveAddressDetails: getAddressDetails,
+    receiveBuildings: getBuildings,
 
-      this.addressDetails = response.addressDetails
-      this.geoDatumCode = response.geo.geoDatumCode
-      this.geoFeature = response.geo.geoFeature
-      this.coordinates = response.geo.geometry.coordinates
-      this.geometryType = response.geo.geometry.type
-      this.buildingIds = response.relatedBuildingIds
+    async getAddressDetails () {
+      const { addressDetails, coordinates } = await this.receiveAddressDetails(this.addressId)
+      this.addressDetails = addressDetails
+      this.coordinates = coordinates
       this.$emit('update:relatedBuildingIds', this.buildingIds)
       this.properties = Object.keys(this.addressDetails)
     },
 
     async getBuildings () {
-      const response = await (await fetch(`https://api.psma.com.au/v1/addresses/${this.addressId}/buildings`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: process.env.VUE_APP_GEOSCAPE_KEY
-        }
-      }).catch(err => console.warn(err))).json()
-
-      this.buildings = response.data
+      this.buildings = await this.receiveBuildings(this.addressId)
       this.$emit('update:relatedBuildingIds', this.buildingIds)
-
-      return response.data
     }
+    // async getAddressDetails () {
+    //   const response = await (await fetch(`https://api.psma.com.au/v1/addresses/${this.addressId}?include=geo,addressDetails`, {
+    //     method: 'GET',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       Authorization: process.env.VUE_APP_GEOSCAPE_KEY
+    //     }
+    //   })).json()
+    //
+    //   this.addressDetails = response.addressDetails
+    //   this.geoDatumCode = response.geo.geoDatumCode
+    //   this.geoFeature = response.geo.geoFeature
+    //   this.coordinates = response.geo.geometry.coordinates
+    //   this.geometryType = response.geo.geometry.type
+    //   this.buildingIds = response.relatedBuildingIds
+    //   this.$emit('update:relatedBuildingIds', this.buildingIds)
+    //   this.properties = Object.keys(this.addressDetails)
+    // },
+
+    // async getBuildings () {
+    //   const response = await (await fetch(`https://api.psma.com.au/v1/addresses/${this.addressId}/buildings`, {
+    //     method: 'GET',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //       Authorization: process.env.VUE_APP_GEOSCAPE_KEY
+    //     }
+    //   }).catch(err => console.warn(err))).json()
+    //
+    //   this.buildings = response.data
+    //   this.$emit('update:relatedBuildingIds', this.buildingIds)
+    //
+    //   return response.data
+    // }
   },
   mounted () {
     if (this.addressId) this.getAddressDetails()

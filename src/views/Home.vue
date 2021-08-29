@@ -1,6 +1,5 @@
 <template>
-  <v-container class="homefone mb-12">
-
+  <v-container class="homefone mt-12">
     <v-progress-linear
       :active="progress"
       :indeterminate="progress"
@@ -22,139 +21,104 @@
 
     <v-stepper v-model="step" class="transparent mt-12" style="box-shadow: none;">
       <v-row justify="center">
-        <v-btn text outlined @click="step=1" :style="{ borderColor: first, color: first }">
-          Search in buildings DB
-        </v-btn>
+        <v-col cols="12" sm="4" class="text-center text-md-right">
+          <v-btn text outlined @click="step=1" :style="{ borderColor: first, color: first }">
+            Settings
+          </v-btn>
+        </v-col>
 
-        <v-btn text outlined @click="step=2" :style="{ borderColor: second, color: second }">
-          Google autocomplete
-        </v-btn>
+        <v-col cols="12" sm="4" class="text-center">
+          <v-btn text outlined @click="step=2" :style="{ borderColor: second, color: second }">
+            Calculator
+          </v-btn>
+        </v-col>
 
-        <v-btn text outlined @click="step=3" :style="{ borderColor: third, color: third }">
-          Geoscape only
-        </v-btn>
+        <v-col cols="12" sm="4" class="text-center text-md-left">
+          <v-btn text outlined @click="step=3" :style="{ borderColor: third, color: third }">
+            Simple calculator
+          </v-btn>
+        </v-col>
       </v-row>
       <v-stepper-items>
         <v-stepper-content step="1" class="pb-12">
-          <v-card flat class="transparent text-center mx-auto" max-width="800">
-            <!-- <h4>Search the building in DB</h4> -->
-            <BuildingsAddress :address.sync="address" />
+          <v-card flat class="transparent text-center mx-auto" max-width="600">
+            <Settings />
           </v-card>
         </v-stepper-content>
 
         <v-stepper-content step="2" class="pb-12">
-          <v-card flat class="transparent text-center mx-auto" max-width="800">
-            <!-- <h4>Google Maps Autocomplete</h4> -->
-            <GoogleAutocomplete :value.sync="address" />
+          <v-card flat class="transparent text-center mx-auto" max-width="600">
+            <!-- <SimpleCalculator v-if="distance" :distance="distance" /> -->
           </v-card>
         </v-stepper-content>
 
         <v-stepper-content step="3" height="320">
-          <v-card flat class="transparent text-center mx-auto" max-width="800">
-            <!-- <h4>Geoscape only</h4> -->
-            <GeoscapeAutocomplete :value.sync="address" />
+          <v-card flat class="transparent text-center mx-auto" max-width="600">
+            <GeoscapeAutocomplete :value.sync="results" :buildingAddress.sync="address" />
           </v-card>
         </v-stepper-content>
       </v-stepper-items>
     </v-stepper>
 
-    <!-- <v-card flat class="transparent text-center mt-12 mx-auto" max-width="800">
-      <h4>Search the building in DB</h4>
-      <BuildingsAddress :address.sync="address" />
-    </v-card> -->
+    <v-card
+      v-if="step === 3"
+      flat
+      class="transparent text-center mt-4 mx-auto px-2"
+      max-width="600"
+      min-width="360"
+    >
+      <v-tabs v-model="tab" background-color="transparent" grow>
+        <v-tab :disabled="!distancesReady"> Distances </v-tab>
+        <v-tab :disabled="!distance"> Calculations </v-tab>
+      </v-tabs>
 
-    <!-- <v-card flat class="transparent text-center mt-12 mx-auto" max-width="800">
-      <h4>Google Maps Autocomplete</h4>
-      <GoogleAutocomplete :value.sync="address" />
-    </v-card> -->
-
-    <!-- <v-card flat class="transparent text-center mt-12 mx-auto" max-width="800">
-      <h4>Geoscape only</h4>
-      <GeoscapeAutocomplete :value.sync="address" />
-    </v-card> -->
-
-    <v-card flat class="transparent text-center mt-12 mx-auto" v-if="addressId" max-width="960">
-      <v-card-text>
-        <h4>Geoscape search for address data</h4>
-      </v-card-text>
-
-      <v-card-text text-center>
-        <h4>{{ address || 'Not found' }}</h4>
-      </v-card-text>
-      <v-card-text>
-        <p><small>Geoscape address id: {{ addressId }}</small></p>
-      </v-card-text>
-      <v-card-text>
-        <p v-if="coordinates">lat: <span>{{ coordinates[1] }}</span>, lng: <span>{{ coordinates[0] }}</span></p>
-      </v-card-text>
-
-      <v-row justify="center">
-        <v-col cols="12" md="6">
-          <v-card flat class="transparent">
-            <v-card-title>
-              <h3>Address details</h3>
-            </v-card-title>
-            <v-expansion-panels v-if="addressId">
-              <v-expansion-panel>
-                <v-expansion-panel-header>
-                  {{ address}}
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <AddressDetails
-                    v-if="addressId"
-                    :addressId="addressId"
-                    :geolocation.sync="coordinates"
-                    :relatedBuildingIds.sync="relatedBuildingIds"
-                  />
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-expansion-panels>
-          </v-card>
-        </v-col>
-        <v-col cols="12" md="6">
-          <v-card flat class="transparent">
-            <v-card-title>
-              <h3>Related buildings</h3>
-            </v-card-title>
-            <v-expansion-panels v-if="relatedBuildingIds && relatedBuildingIds.length > 0">
-              <v-expansion-panel
-                    v-for="(item, index) in relatedBuildingIds"
-                    :key="index"
-              >
-                <v-expansion-panel-header>
-                  {{ item }}
-                </v-expansion-panel-header>
-                <v-expansion-panel-content>
-                  <ShowBuilding :buildingId="item" />
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-expansion-panels>
-          </v-card>
-        </v-col>
-      </v-row>
+      <v-tabs-items v-model="tab">
+        <v-tab-item>
+          <ShowDistances
+            v-if="distancesReady"
+            :distances="distances"
+            :selected.sync="distance"
+            class="mt-4"
+          />
+        </v-tab-item>
+        <v-tab-item>
+          <SimpleCalculator
+            v-if="distance"
+            :distance="distance"
+            :address="address"
+            class="mt-4"
+          />
+        </v-tab-item>
+      </v-tabs-items>
     </v-card>
   </v-container>
 </template>
 
 <script>
 
+import { getCoordinates, getGeoscapeVariant } from '@/helpers'
+import Settings from '@/components/Settings.vue'
+
 export default {
   name: 'Home',
   components: {
-    BuildingsAddress: () => import('@/components/BuildingsAddress.vue'),
+    Settings,
+    SimpleCalculator: () => import('@/components/SimpleCalculator.vue'),
     GeoscapeAutocomplete: () => import('@/components/GeoscapeAutocomplete.vue'),
-    GoogleAutocomplete: () => import('@/components/GoogleAutocomplete'),
-    AddressDetails: () => import('@/components/AddressDetails.vue'),
-    ShowBuilding: () => import('@/components/ShowBuilding.vue')
+    ShowDistances: () => import('@/components/ShowDistances.vue')
   },
+
   data: () => ({
     step: 1,
+    tab: 0,
     address: '',
-    addressId: null,
-    coordinates: null,
-    relatedBuildingIds: [],
+    results: '',
+    distance: undefined,
+    distances: null,
+    distancesReady: false,
     progress: false
   }),
+
   computed: {
     first () {
       return this.step === 1 ? '#900' : '#999'
@@ -166,62 +130,35 @@ export default {
       return this.step === 3 ? '#900' : '#999'
     }
   },
-  methods: {
-    async getCoordinates (id) {
-      this.progress = true
-      const response = await (await fetch(`https://api.psma.com.au/v1/addresses/${id}/geo`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: process.env.VUE_APP_GEOSCAPE_KEY
-        }
-      })).json()
 
-      const coords = response.geo.geometry.coordinates
-      this.progress = false
-      return { lat: coords[1], lng: coords[0] }
-    },
-
-    async getGeoscapeVariant (data) {
-      var address = data || this.$refs.autocompleteAddress.value
-      const index = address.indexOf(', Australia')
-      address = index !== -1 ? address.slice(0, index) : address
-
-      this.progress = true
-
-      const response = (await (await fetch(`https://api.psma.com.au/v1/predictive/address?maxNumberOfResults=1&query=${encodeURIComponent(address)}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: process.env.VUE_APP_GEOSCAPE_KEY
-        }
-      })).json())
-
-      this.progress = false
-
-      return response && response.suggest ? response.suggest[0] : null
+  watch: {
+    distance (value) {
+      this.distance = value
+      this.tab = 1
     }
   },
-  watch: {
-    address: {
-      async handler (value) {
-        const result = await this.getGeoscapeVariant(value)
-        if (!result) {
-          this.address = 'Not found'
-          this.addressId = null
-        }
-        this.addressId = result.id
-      }
+
+  methods: {
+    getCoordinates,
+    getGeoscapeVariant,
+    showDistances (data) {
+      console.log('SHOW DISTANCES:\n', data)
+      this.distances = data
+      this.distancesReady = true
     },
-    coordinates: {
-      deep: true,
-      handler (val) {}
-    },
-    relatedBuildingIds: {
-      deep: true,
-      immediate: true,
-      handler (val) {}
+    showProgress (value) {
+      this.progress = value
     }
+  },
+
+  beforeDestroy () {
+    this.$root.$off('distances-ready', this.showDistances)
+    this.$root.$off('progress', this.showProgress)
+  },
+
+  mounted () {
+    this.$root.$on('distances-ready', this.showDistances)
+    this.$root.$on('progress', this.showProgress)
   }
 }
 </script>
