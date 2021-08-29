@@ -1,7 +1,5 @@
 # dgtek-portal-calculator
 
-#### [demo](https://garevna.github.io/dgtek-calculator)
-
 ## Project setup
 ```
 yarn install
