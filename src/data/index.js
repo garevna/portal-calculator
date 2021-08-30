@@ -1,5 +1,6 @@
 import { defaults } from './schema-defaults'
 import SimpleCalculator from './schema-simple-calculator'
+import DetailedCalculator from './schema-calculator'
 
 const {
   pitCost,
@@ -23,6 +24,7 @@ const {
 
 export {
   SimpleCalculator,
+  DetailedCalculator,
   defaults,
   pitCost,
   breakoutCost,

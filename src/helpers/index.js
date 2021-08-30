@@ -8,6 +8,8 @@ import { getBuildings } from './getBuildings'
 
 import { getDistance } from './getDistance'
 import { getDefaults } from './getDefaults'
+import { saveDefaults } from './saveDefaults'
+import { postHistory } from './postHistory'
 
 import { transformAddress } from './transformAddress'
 
@@ -23,6 +25,8 @@ export {
 
   getDistance,
   getDefaults,
+  saveDefaults,
+  postHistory,
 
   transformAddress,
 

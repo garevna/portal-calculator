@@ -1,5 +1,4 @@
 export async function getDefaults () {
-  console.log(process.env.VUE_APP_BACKEND_API_KEY)
   const response = await (await fetch('https://portal.dgtek.net/calculator/defaults', {
     method: 'GET',
     headers: {

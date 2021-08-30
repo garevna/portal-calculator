@@ -1,20 +1,29 @@
 <template>
-  <v-container>
-    <v-row justify="center" align="center" v-for="(item, propName) of defaults" :key="propName">
-      <v-col cols="6" lg="5" style="text-align: right">
-        <small>{{ item.title }}</small>
-      </v-col>
-      <v-col cols="6" md="3" lg="2">
-        <v-text-field v-model="item.value" outlined dense hide-details />
-      </v-col>
-    </v-row>
-  </v-container>
+  <table width="360">
+    <tbody>
+      <tr v-for="(item, propName) of defaults" :key="propName">
+        <td width="280">
+          <small>{{ item.title }}</small>
+        </td>
+        <td>
+          <v-text-field v-model="item.value" outlined dense hide-details />
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" class="pt-5 text-right">
+          <v-btn outlined color="primary" @click="saveData()">
+            Save updates
+          </v-btn>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script>
 
 import { defaults } from '@/data'
-// import { getDefaults } from '@/helpers'
+import { getDefaults /*, saveDefaults */ } from '@/helpers'
 
 export default {
   name: 'Settings',
@@ -23,17 +32,22 @@ export default {
     defaults: JSON.parse(JSON.stringify(defaults))
   }),
 
-  // async beforeMount () {
-  //   this.loading = true
-  //   const response = await getDefaults()
-  //   console.log('*********************', response)
-  //   for (const key in response) {
-  //     this.defaults[key].value = response[key]
-  //   }
-  // },
+  methods: {
+    async saveData () {
+      const data = Object.assign({}, ...Object.keys(this.defaults).map(key => ({ [key]: this.defaults[key].value })))
+      console.log({
+        defaults: data
+      })
+    }
+  },
 
-  mounted () {
-    console.log(defaults)
+  async beforeMount () {
+    const data = await getDefaults()
+    console.log('SETTINGS RECEIVED THE DATA:\n', data)
+    for (const key in this.defaults) {
+      console.log(key, this.defaults[key].value, data[key])
+      this.defaults[key].value = data[key] || this.defaults[key].value
+    }
   }
 }
 </script>

@@ -53,6 +53,10 @@ export default {
   background-color: transparent !important;
 }
 
+.v-icon.v-icon {
+  font-size: 16px !important;
+}
+
 * {
   outline: none!important;
   user-select: none!important;

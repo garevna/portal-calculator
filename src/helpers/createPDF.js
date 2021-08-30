@@ -42,7 +42,10 @@ export const createPDF = async (address, data, result, rent) => {
 
   for (const key in data) {
     report.push(Object.assign({}, line, { text: data[key].title, style: { width: 360, align: 'left', continued: true } }))
-    report.push(Object.assign({}, line, { font: 'Helvetica-Bold', style: { align: 'right' }, text: data[key].value, moveDown: 1 }))
+
+    const insertion = data[key].cost && data[key].value ? `${data[key].value}   (${data[key].cost})` : data[key].value
+
+    report.push(Object.assign({}, line, { font: 'Helvetica-Bold', style: { align: 'right' }, text: insertion, moveDown: 1 }))
   }
 
   report.push(hr)

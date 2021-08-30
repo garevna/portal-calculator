@@ -14,82 +14,76 @@
           :src="require('@/assets/logo.svg')"
           class="my-3"
           contain
-          height="80"
+          height="50"
         />
       </v-col>
     </v-row>
 
-    <v-stepper v-model="step" class="transparent mt-12" style="box-shadow: none;">
-      <v-row justify="center">
-        <v-col cols="12" sm="4" class="text-center text-md-right">
-          <v-btn text outlined @click="step=1" :style="{ borderColor: first, color: first }">
-            Settings
-          </v-btn>
-        </v-col>
-
-        <v-col cols="12" sm="4" class="text-center">
-          <v-btn text outlined @click="step=2" :style="{ borderColor: second, color: second }">
-            Calculator
-          </v-btn>
-        </v-col>
-
-        <v-col cols="12" sm="4" class="text-center text-md-left">
-          <v-btn text outlined @click="step=3" :style="{ borderColor: third, color: third }">
-            Simple calculator
-          </v-btn>
-        </v-col>
+    <v-card flat class="transparent mx-auto" max-width="600" min-width="360">
+      <v-row v-if="mode !== 'settings'" justify="end">
+        <v-btn text color="#777" class="mr-2" @click="mode = 'settings'">
+          <v-icon small> mdi-cog </v-icon>
+          <small>Settings</small>
+        </v-btn>
       </v-row>
-      <v-stepper-items>
-        <v-stepper-content step="1" class="pb-12">
-          <v-card flat class="transparent text-center mx-auto" max-width="600">
-            <Settings />
-          </v-card>
-        </v-stepper-content>
 
-        <v-stepper-content step="2" class="pb-12">
-          <v-card flat class="transparent text-center mx-auto" max-width="600">
-            <!-- <SimpleCalculator v-if="distance" :distance="distance" /> -->
-          </v-card>
-        </v-stepper-content>
+      <v-card v-if="mode === 'settings'" flat class="transparent mx-auto mt-3" width="360">
+        <v-toolbar flat clas="transparent">
+          <v-toolbar-title>
+            <h5><small>Settings</small></h5>
+          </v-toolbar-title>
 
-        <v-stepper-content step="3" height="320">
-          <v-card flat class="transparent text-center mx-auto" max-width="600">
-            <GeoscapeAutocomplete :value.sync="results" :buildingAddress.sync="address" />
-          </v-card>
-        </v-stepper-content>
-      </v-stepper-items>
-    </v-stepper>
+          <v-spacer />
 
-    <v-card
-      v-if="step === 3"
-      flat
-      class="transparent text-center mt-4 mx-auto px-2"
-      max-width="600"
-      min-width="360"
-    >
-      <v-tabs v-model="tab" background-color="transparent" grow>
-        <v-tab :disabled="!distancesReady"> Distances </v-tab>
-        <v-tab :disabled="!distance"> Calculations </v-tab>
-      </v-tabs>
+          <v-icon color="#777" class="pa-0 ma-0" @click="mode = 'calc'">
+            mdi-close
+          </v-icon>
+        </v-toolbar>
 
-      <v-tabs-items v-model="tab">
-        <v-tab-item>
-          <ShowDistances
-            v-if="distancesReady"
-            :distances="distances"
-            :selected.sync="distance"
-            class="mt-4"
+        <v-row justify="center">
+          <Settings />
+        </v-row>
+      </v-card>
+
+      <v-row justify="center" v-else>
+        <v-card flat class="transparent mx-auto mt-4" width="360">
+          <GeoscapeAutocomplete
+            :value.sync="results"
+            :buildingAddress.sync="address"
+            :mode.sync="mode"
           />
-        </v-tab-item>
-        <v-tab-item>
-          <SimpleCalculator
-            v-if="distance"
-            :distance="distance"
-            :address="address"
-            class="mt-4"
-          />
-        </v-tab-item>
-      </v-tabs-items>
+
+          <v-tabs v-if="mode" v-model="tab" background-color="transparent" grow>
+            <v-tab :disabled="!distancesReady"> Distances </v-tab>
+            <v-tab :disabled="!distance"> Calculations </v-tab>
+          </v-tabs>
+
+          <v-tabs-items v-model="tab">
+            <v-tab-item>
+              <ShowDistances
+                v-if="distancesReady"
+                :distances="distances"
+                :selected.sync="distance"
+                class="mt-4"
+              />
+            </v-tab-item>
+            <v-tab-item>
+              <SimpleCalculator
+                v-if="mode === 'simple'"
+                :distance="distance"
+                :address="address"
+                class="mt-4"
+              />
+              <Calculator
+                v-else
+                :distance="distance"
+                :address="address"
+                class="mt-4"
+              />
+            </v-tab-item>
+          </v-tabs-items>
+        </v-card>
+      </v-row>
     </v-card>
   </v-container>
 </template>
@@ -103,6 +97,7 @@ export default {
   name: 'Home',
   components: {
     Settings,
+    Calculator: () => import('@/components/Calculator.vue'),
     SimpleCalculator: () => import('@/components/SimpleCalculator.vue'),
     GeoscapeAutocomplete: () => import('@/components/GeoscapeAutocomplete.vue'),
     ShowDistances: () => import('@/components/ShowDistances.vue')
@@ -110,6 +105,7 @@ export default {
 
   data: () => ({
     step: 1,
+    mode: undefined,
     tab: 0,
     address: '',
     results: '',
@@ -135,6 +131,9 @@ export default {
     distance (value) {
       this.distance = value
       this.tab = 1
+    },
+    mode (value) {
+      console.log('MODE CHANGED: ', value)
     }
   },
 

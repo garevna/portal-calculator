@@ -37,7 +37,7 @@
                       {{ distance }}
                     </td>
                   </tr>
-                  <tr v-for="(item, propName) in simpleCalculator" :key="propName">
+                  <tr v-for="(item, propName) in calculator" :key="propName">
                     <td style="text-align: right">
                       <small>{{ item.title }}</small>
                     </td>
@@ -85,7 +85,7 @@
 
 <script>
 
-import { SimpleCalculator } from '@/data'
+import { SimpleCalculator, DetailedCalculator } from '@/data'
 import { createPDF } from '@/helpers'
 
 export default {
@@ -96,10 +96,10 @@ export default {
     Selector: () => import('@/components/Selector.vue')
   },
 
-  props: ['address', 'distance'],
+  props: ['address', 'distance', 'mode'],
 
   data: () => ({
-    simpleCalculator: null,
+    calculator: null,
     totalCost: null,
     totalDustRentalCostPerMonth: null,
     showPDF: false
@@ -107,10 +107,10 @@ export default {
 
   watch: {
     distance (val) {
-      this.simpleCalculator.setDistance(val)
+      this.calculator.setDistance(val)
       this.calculateResults()
     },
-    simpleCalculator: {
+    calculator: {
       deep: true,
       handler (data) {
         this.calculateResults()
@@ -120,21 +120,27 @@ export default {
 
   methods: {
     calculateResults () {
-      const { totalCost, totalDustRentalCostPerMonth } = this.simpleCalculator.getTotalCost()
+      const { totalCost, totalDustRentalCostPerMonth } = this.calculator.getTotalCost()
       this.totalCost = totalCost
       this.totalDustRentalCostPerMonth = totalDustRentalCostPerMonth
+      console.group('RESULTS')
+      console.log('totalCost', this.totalCost)
+      console.log('totalDustRentalCostPerMonth', this.totalDustRentalCostPerMonth)
+      console.groupEnd('RESULTS')
     },
 
     async outputResultsToPDF () {
-      const data = Object.keys(this.simpleCalculator).map(key => ({ title: this.simpleCalculator[key].title, value: this.simpleCalculator[key].value }))
+      const data = Object.keys(this.calculator).map(key => ({ title: this.calculator[key].title, value: this.calculator[key].value }))
+      console.log(data)
       await createPDF(this.address, data, this.totalCost, this.totalDustRentalCostPerMonth)
     }
   },
 
   mounted () {
-    this.simpleCalculator = new SimpleCalculator()
+    console.log('MODE: ', this.mode)
+    this.calculator = this.mode === 'simple' ? new SimpleCalculator() : new DetailedCalculator()
 
-    this.simpleCalculator.setDistance(this.distance)
+    this.calculator.setDistance(this.distance)
     this.calculateResults()
   }
 }
