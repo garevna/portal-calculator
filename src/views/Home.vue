@@ -131,9 +131,6 @@ export default {
     distance (value) {
       this.distance = value
       this.tab = 1
-    },
-    mode (value) {
-      console.log('MODE CHANGED: ', value)
     }
   },
 
@@ -141,7 +138,6 @@ export default {
     getCoordinates,
     getGeoscapeVariant,
     showDistances (data) {
-      console.log('SHOW DISTANCES:\n', data)
       this.distances = data
       this.distancesReady = true
     },

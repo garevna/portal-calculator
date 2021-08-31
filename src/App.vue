@@ -57,10 +57,10 @@ export default {
   font-size: 16px !important;
 }
 
-* {
+/* *:not(input) {
   outline: none!important;
   user-select: none!important;
-}
+} */
 
 .col-xl, .col-xl-auto, .col-xl-12, .col-xl-11, .col-xl-10, .col-xl-9, .col-xl-8, .col-xl-7, .col-xl-6,
 .col-xl-5, .col-xl-4, .col-xl-3, .col-xl-2, .col-xl-1, .col-lg, .col-lg-auto, .col-lg-12, .col-lg-11,
@@ -71,5 +71,9 @@ export default {
 .col-sm-2, .col-sm-1, .col, .col-auto, .col-12, .col-11, .col-10, .col-9, .col-8, .col-7, .col-6,
 .col-5, .col-4, .col-3, .col-2, .col-1 {
   padding: 4px 12px !important;
+}
+
+input, textarea {
+  -webkit-user-select: text;
 }
 </style>

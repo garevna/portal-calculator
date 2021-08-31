@@ -42,13 +42,8 @@ export default {
 
   methods: {
     selectPit (item) {
-      console.log(item)
       this.$emit('update:selected', item.distance)
     }
-  },
-
-  mounted () {
-    console.log('Mounted:\n', this.distances)
   }
 }
 </script>

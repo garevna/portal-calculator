@@ -77,17 +77,4 @@ class SimpleCalculator {
   }
 }
 
-const example = new SimpleCalculator()
-
-example.setDistance(371)
-example.typeOfRollout = 'via telstra'
-example.connectedToTelstra = 'yes'
-
-console.log('EXAMPLE:\n', example)
-console.log('CALCS:\n', example.getTotalCost())
-console.log('numberOfPits: ', example.numberOfPits.value)
-console.log('numberOfBreakoutsToTelstra: ', example.numberOfBreakoutsToTelstra.value)
-
-// export const simpleCalculator = new SimpleCalculator()
-
 export default SimpleCalculator

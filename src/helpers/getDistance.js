@@ -9,7 +9,5 @@ export async function getDistance (lat, lng) {
     body: JSON.stringify({ lat, lng })
   })).json()
 
-  console.log('FETCH RESPONSE:\n', response)
-
   return response
 }

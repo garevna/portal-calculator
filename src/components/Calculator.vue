@@ -103,7 +103,6 @@ export default {
 
   watch: {
     distance (val) {
-      this.calculator.setDistance(val)
       this.calculateResults()
     },
     calculator: {

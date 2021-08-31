@@ -23,7 +23,7 @@
 <script>
 
 import { defaults } from '@/data'
-import { getDefaults /*, saveDefaults */ } from '@/helpers'
+import { getDefaults, saveDefaults } from '@/helpers'
 
 export default {
   name: 'Settings',
@@ -35,17 +35,13 @@ export default {
   methods: {
     async saveData () {
       const data = Object.assign({}, ...Object.keys(this.defaults).map(key => ({ [key]: this.defaults[key].value })))
-      console.log({
-        defaults: data
-      })
+      saveDefaults({ defaults: data })
     }
   },
 
   async beforeMount () {
     const data = await getDefaults()
-    console.log('SETTINGS RECEIVED THE DATA:\n', data)
     for (const key in this.defaults) {
-      console.log(key, this.defaults[key].value, data[key])
       this.defaults[key].value = data[key] || this.defaults[key].value
     }
   }

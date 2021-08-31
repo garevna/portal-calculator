@@ -1,5 +1,4 @@
 export async function saveDefaults (data) {
-  console.log(data)
   const response = await fetch('https://portal.dgtek.net/calculator/defaults', {
     method: 'PUT',
     headers: {
